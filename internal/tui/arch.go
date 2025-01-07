@@ -34,6 +34,7 @@ func newArchSelection() archSelection {
 	d.ShowDescription = false
 
 	l := list.New(items, d, 0, 0)
+	l.Title = "Select an Architecture"
 	l.Select(defaultSelection)
 	return archSelection{list: l}
 }

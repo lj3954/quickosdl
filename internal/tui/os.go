@@ -1,11 +1,11 @@
 package tui
 
 import (
-	"fmt"
 	"slices"
 	"sync"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/lj3954/quickosdl/internal/fetch"
 	"github.com/quickemu-project/quickget_configs/pkg/quickgetdata"
@@ -56,15 +56,21 @@ type osSelection struct {
 
 func newOSSelection(arch quickgetdata.Arch, w, h int) osSelection {
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), w, h)
+	l.Title = "Select an Operating System"
+	l.SetSpinner(spinner.MiniDot)
+	l.StartSpinner()
 	return osSelection{arch: arch, list: l}
 }
 
 type osList []quickgetdata.OSData
 
 func (o osSelection) Init() tea.Cmd {
-	return func() tea.Msg {
-		return getOsList(o.arch)
-	}
+	return tea.Batch(
+		o.list.StartSpinner(),
+		func() tea.Msg {
+			return getOsList(o.arch)
+		},
+	)
 }
 
 func (o osSelection) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -75,6 +81,7 @@ func (o osSelection) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			items[i] = listOS{os}
 		}
 		o.list.SetItems(items)
+		o.list.StopSpinner()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -84,8 +91,11 @@ func (o osSelection) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return o, tea.Quit
 			}
 		case "enter", "right", "l":
-			if !o.list.SettingFilter() {
-				panic(fmt.Sprint("TODO: Next page ", o.list.SelectedItem().(listOS).os))
+			if !o.list.SettingFilter() && o.list.SelectedItem() != nil {
+				os := o.list.SelectedItem().(listOS).os
+				configs := os.Releases
+				optSel := newOptionSelection(optionTypeRelease, os, configs, o.list.Width(), o.list.Height())
+				return optSel, optSel.Init()
 			}
 		case "left", "h":
 			if !o.list.SettingFilter() {
