@@ -43,9 +43,6 @@ func (c configItem) FilterValue() string {
 }
 
 func newOptionSelection(t optionType, os quickgetdata.OSData, configs []quickgetdata.Config, w, h int) optionSelection {
-	if t == optionTypeRelease {
-		configs = os.Releases
-	}
 	var items []list.Item
 	set := make(map[string]struct{})
 	for _, c := range configs {
@@ -102,9 +99,13 @@ func (o optionSelection) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						optSel := newOptionSelection(optionTypeEdition, o.os, configs, o.list.Width(), o.list.Height())
 						return optSel, optSel.Init()
 					}
-					panic("Unimplemented: No editions to select")
+					conf := o.list.SelectedItem().(configItem).Config
+					dlPrompt := newDlPrompt(o.os, conf, o.list.Width(), o.list.Height())
+					return dlPrompt, dlPrompt.Init()
 				case optionTypeEdition:
-					panic("Unimplemented: selected edition")
+					conf := o.list.SelectedItem().(configItem).Config
+					dlPrompt := newDlPrompt(o.os, conf, o.list.Width(), o.list.Height())
+					return dlPrompt, dlPrompt.Init()
 				}
 				arch := quickgetdata.Arch(o.list.SelectedItem().(listArch))
 				osSel := newOSSelection(arch, o.list.Width(), o.list.Height())
@@ -121,9 +122,6 @@ func (o optionSelection) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					optSel := newOptionSelection(optionTypeRelease, o.os, o.os.Releases, o.list.Width(), o.list.Height())
 					return optSel, optSel.Init()
 				}
-				archSel := newArchSelection()
-				archSel.list.SetSize(o.list.Width(), o.list.Height())
-				return archSel, archSel.Init()
 			}
 		}
 	case tea.WindowSizeMsg:
