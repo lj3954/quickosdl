@@ -15,7 +15,7 @@ type urlDisplay struct {
 }
 
 func newUrlDisplay(os quickgetdata.OSData, config quickgetdata.Config, w, h int) urlDisplay {
-	urls := extractUrls(config)
+	urls := urlItems(config)
 	d := list.NewDefaultDelegate()
 	d.ShowDescription = false
 	l := list.New(urls, d, w, h)
@@ -23,10 +23,20 @@ func newUrlDisplay(os quickgetdata.OSData, config quickgetdata.Config, w, h int)
 	return urlDisplay{list: l, os: os, config: config}
 }
 
-func extractUrls(config quickgetdata.Config) []list.Item {
-	urls := make([]list.Item, 0, len(config.ISO)+len(config.IMG)+len(config.FixedISO)+len(config.Floppy))
+func urlItems(config quickgetdata.Config) []list.Item {
+	urls := extractSources(config)
+	items := make([]list.Item, len(urls))
+	for i, url := range urls {
+		items[i] = listItem(url.URL)
+	}
+	return items
+}
+
+func extractSources(config quickgetdata.Config) []quickgetdata.WebSource {
+	l := len(config.ISO) + len(config.IMG) + len(config.FixedISO) + len(config.Floppy)
+	urls := make([]quickgetdata.WebSource, 0, l)
 	for s := range sliceIter(config.ISO, config.IMG, config.FixedISO, config.Floppy) {
-		urls = append(urls, listItem(s.Web.URL))
+		urls = append(urls, *s.Web)
 	}
 	return urls
 }

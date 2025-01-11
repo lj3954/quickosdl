@@ -73,7 +73,8 @@ func (d dlPrompt) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					urlDisplay := newUrlDisplay(d.os, d.config, d.list.Width(), d.list.Height())
 					return urlDisplay, urlDisplay.Init()
 				case downloadNow:
-					panic("todo: downloading")
+					fp := newFilePicker(d.config, d.list.Height())
+					return fp, fp.Init()
 				}
 			}
 		case "left", "h":
