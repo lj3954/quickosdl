@@ -1,0 +1,8 @@
+[package]
+name = "quickosdl"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+quickget_core = { git = "https://github.com/lj3954/quickemu-rs" }
+ratatui = "0.29.0"
