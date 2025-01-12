@@ -115,7 +115,13 @@ impl<T: SearchableItem> SearchableList<T> {
             match key.code {
                 KeyCode::Char('/') => self.enter_search(),
                 KeyCode::Char('l') | KeyCode::Right | KeyCode::Enter => {
-                    return self.selected.selected().map(|i| &self.items[i])
+                    return if self.search_query.is_empty() {
+                        self.selected.selected().map(|i| &self.items[i])
+                    } else {
+                        self.selected
+                            .selected()
+                            .map(|i| &self.items[self.curr_item_indices[i]])
+                    }
                 }
                 KeyCode::Down | KeyCode::Char('j') => self.select_next(),
                 KeyCode::Up | KeyCode::Char('k') => self.select_prev(),
