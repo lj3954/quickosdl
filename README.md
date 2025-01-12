@@ -8,7 +8,8 @@ This project makes use of the JSON data from the [quickget_cigo](https://github.
 which allows this tool to work reliably, keeping up with new OS releases, without requiring constant updates.
 
 The OS list begins downloading when the program first launches, which will result in fewer delays, as the user
-has to make a selection (architecture) beforehand.
+has to make a selection (architecture) before the list is displayed. On fast connections, the list will be
+available effectively immediately.
 
 Initially, I started writing this tool in Golang using the bubbletea TUI library, but I wasn't particularly fond
 of its implementation of the Elm architecture in Golang (due to its poor type system). Therefore, I switched the project
@@ -26,10 +27,30 @@ You can install it using an [AUR helper](https://wiki.archlinux.org/title/AUR_he
 paru -S quickosdl
 ```
 
+### Linux and macOS systems
+
+Binary releases can be found on the [releases page](https://github.com/lj3954/quickosdl/releases).
+To install, simply download the binary for your system and place it in a directory in your PATH.
+
+Only x86_64 Linux with glibc is currently supported. Linux systems with other libc implementations
+or architectures will need to build from source.
+
+### Windows
+
+Windows support is coming soon. Currently, due to a dependency which is currently being rewritten,
+a Windows build is not possible.
+
+### Building from source
+
+To build from source, you will need the Rust toolchain, including cargo, installed.
+
+The recommended way to install the Rust toolchain is to use [rustup](https://rustup.rs) provided by the Rust foundation.
+
+Thereafter, you can build the project using `cargo build --release`.
+This will produce a binary in the `target/release` directory.
+Alternatively, you can install the program directly using `cargo install --path .`.
+
 ## Usage
 
-Binary releases are available on the [releases page](https://github.com/lj3954/quickosdl/releases).
-
-Alternatively, you can build the project yourself by cloning the repository and running `cargo build --release`.
-
-Currently, only Linux and macOS are supported. Windows support is planned in the near future.
+Once the program is installed, you can run it in a terminal using `quickosdl`.
+Keybinds are shown within the interface.
