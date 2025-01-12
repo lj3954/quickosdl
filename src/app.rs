@@ -8,9 +8,9 @@ use ratatui::{
 };
 
 use crate::{
-    arch_selection::ArchSelection, download::DownloadPage, download_options::DownloadOptions,
-    edition_selection::EditionSelection, os_selection::OSSelection,
-    release_selection::ReleaseSelection, url_list::UrlList,
+    arch_selection::ArchSelection, complete::CompletePage, download::DownloadPage,
+    download_options::DownloadOptions, edition_selection::EditionSelection,
+    os_selection::OSSelection, release_selection::ReleaseSelection, url_list::UrlList,
 };
 
 pub struct App {
@@ -89,7 +89,7 @@ pub enum Page {
     DownloadOptions(DownloadOptions),
     Download(DownloadPage),
     UrlList(UrlList),
-    Complete,
+    Complete(CompletePage),
     Error,
 }
 
@@ -103,6 +103,7 @@ impl Page {
             Page::DownloadOptions(download_options) => download_options.draw(frame, area),
             Page::Download(download_page) => download_page.draw(frame, area),
             Page::UrlList(url_list) => url_list.draw(frame, area),
+            Page::Complete(complete_page) => complete_page.draw(frame, area),
             _ => unimplemented!(),
         }
     }
@@ -115,6 +116,7 @@ impl Page {
             Page::DownloadOptions(download_options) => download_options.handle_key(key),
             Page::Download(download_page) => download_page.handle_key(key),
             Page::UrlList(url_list) => url_list.handle_key(key),
+            Page::Complete(complete_page) => complete_page.handle_key(key),
             _ => unimplemented!(),
         }
     }
@@ -128,7 +130,7 @@ impl Page {
             Page::DownloadOptions(_) => "Download Options",
             Page::Download(_) => "Download",
             Page::UrlList(_) => "URLs",
-            Page::Complete => "Complete",
+            Page::Complete(_) => "Complete",
             Page::Error => "Error",
         }
     }

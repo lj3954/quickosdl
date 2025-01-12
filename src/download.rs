@@ -20,7 +20,10 @@ use ratatui::{
 use size::Size;
 use tokio::{runtime::Runtime, task::JoinHandle};
 
-use crate::app::{Action, Page};
+use crate::{
+    app::{Action, Page},
+    complete::CompletePage,
+};
 
 pub struct DownloadPage {
     rt: Runtime,
@@ -47,7 +50,7 @@ impl DownloadPage {
         if !errors.is_empty() {
             Some(Action::NextPage(Page::Error))
         } else if all_complete {
-            Some(Action::NextPage(Page::Complete))
+            Some(Action::NextPage(Page::Complete(CompletePage::new())))
         } else {
             None
         }
