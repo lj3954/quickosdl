@@ -38,3 +38,4 @@ jobs:
           commit-message: "chore: Update preview for ${{ env.tag_name }}"
           branch: preview-${{ env.tag_name }}
           title: "chore: Update preview for ${{ env.tag_name }}"
+          base: "master"
