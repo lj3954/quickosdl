@@ -1,0 +1,40 @@
+name: Preview
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  generate_preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set tag name
+        run: echo "tag_name=${{ steps.latest_tag.outputs.result }}" >> $GITHUB_ENV
+
+      - name: Install package
+        run: |
+          cargo install --path .
+
+      - name: Generate preview
+        uses: charmbracelet/vhs-action@v2.1.0
+        with:
+          path: ".github/preview.tape"
+
+      - name: Move preview
+        run: mv preview.gif .github/preview.gif
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: .github/preview.gif
+          commit-message: "chore: Update preview for ${{ env.tag_name }}"
+          branch: preview-${{ env.tag_name }}
+          title: "chore: Update preview for ${{ env.tag_name }}"
