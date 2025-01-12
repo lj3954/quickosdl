@@ -9,6 +9,7 @@ use ratatui::{
 
 use crate::{
     app::{Action, Page},
+    download::DownloadPage,
     searchable_list::{SearchableItem, SearchableList},
     url_list::UrlList,
 };
@@ -42,7 +43,9 @@ impl DownloadOptions {
             KeyCode::Char('q') if !self.list.is_searching() => Some(Action::Exit),
             KeyCode::Char('h') if !self.list.is_searching() => Some(Action::PrevPage),
             _ => self.list.handle_key(key).map(|option| match option {
-                DownloadOption::Download => Action::NextPage(Page::Download),
+                DownloadOption::Download => Action::NextPage(Page::Download(DownloadPage::new(
+                    extract_sources(&self.config).collect(),
+                ))),
                 DownloadOption::ListUrls => Action::NextPage(Page::UrlList(UrlList::new(
                     sources_to_urls(extract_sources(&self.config)),
                 ))),
@@ -69,11 +72,11 @@ impl AsRef<str> for DownloadOption {
     }
 }
 
-fn sources_to_urls(sources: impl IntoIterator<Item = WebSource>) -> Vec<String> {
+fn sources_to_urls(sources: impl Iterator<Item = WebSource>) -> Vec<String> {
     sources.into_iter().map(|s| s.url).collect()
 }
 
-fn extract_sources(config: &Config) -> impl IntoIterator<Item = WebSource> + use<'_> {
+fn extract_sources(config: &Config) -> impl Iterator<Item = WebSource> + use<'_> {
     config
         .iso
         .iter()

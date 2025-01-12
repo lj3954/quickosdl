@@ -12,6 +12,7 @@ use ratatui::{
 
 mod app;
 mod arch_selection;
+mod download;
 mod download_options;
 mod edition_selection;
 mod os_selection;

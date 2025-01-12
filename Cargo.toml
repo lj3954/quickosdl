@@ -8,4 +8,5 @@ itertools = "0.14.0"
 quickget_core = { git = "https://github.com/lj3954/quickemu-rs" }
 ratatui = "0.29.0"
 reqwest = { version = "0.12.12", features = ["blocking"] }
+size = "0.4.1"
 tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread"] }
