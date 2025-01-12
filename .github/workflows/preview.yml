@@ -15,9 +15,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-
-      - name: Set tag name
-        run: echo "tag_name=${{ steps.latest_tag.outputs.result }}" >> $GITHUB_ENV
+        with:
+          ref: ${{ env.ref_name }}
 
       - name: Install package
         run: |
@@ -35,7 +34,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           add-paths: .github/preview.gif
-          commit-message: "chore: Update preview for ${{ env.tag_name }}"
-          branch: preview-${{ env.tag_name }}
-          title: "chore: Update preview for ${{ env.tag_name }}"
-          base: "master"
+          commit-message: "chore: Update preview for ${{ env.ref_name }}"
+          branch: preview-${{ env.ref_name }}
+          title: "chore: Update preview for ${{ env.ref_name }}"
