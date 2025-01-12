@@ -9,3 +9,11 @@ which allows this tool to work reliably, keeping up with new OS releases, withou
 
 The OS list begins downloading when the program first launches, which will result in fewer delays, as the user
 has to make a selection (architecture) beforehand.
+
+## Usage
+
+Binary releases are available on the [releases page](https://github.com/lj3954/quickosdl/releases).
+
+Alternatively, you can build the project yourself by cloning the repository and running `cargo build --release`.
+
+Currently, only Linux and macOS are supported. Windows support is planned in the near future.
