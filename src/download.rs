@@ -113,6 +113,7 @@ impl DownloadPage {
     }
 }
 
+#[allow(dead_code)]
 enum DownloadError {
     Reqwest(reqwest::Error),
     Io(std::io::Error),

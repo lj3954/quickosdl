@@ -80,6 +80,7 @@ impl<T: SearchableItem> SearchableList<T> {
                     .collect()
             };
             if items.is_empty() {
+                self.selected.select(None);
                 items.push(ListItem::new(Span::raw("Nothing to see here")));
             }
             List::new(items)
