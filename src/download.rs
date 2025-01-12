@@ -13,6 +13,7 @@ use ratatui::{
     crossterm::event::KeyEvent,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
+    text::Span,
     widgets::Gauge,
     Frame,
 };
@@ -101,9 +102,9 @@ impl DownloadPage {
                     Color::Black,
                 ),
             };
-            let style = Style::default().bg(color).fg(text_color);
+            let text = Span::styled(text, Style::default().fg(text_color));
 
-            let gauge = Gauge::default().ratio(ratio).style(style).label(text);
+            let gauge = Gauge::default().ratio(ratio).gauge_style(color).label(text);
             frame.render_widget(gauge, chunks[i]);
         });
     }
