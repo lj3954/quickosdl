@@ -1,9 +1,7 @@
 use std::{
     borrow::Cow,
-    error::Error,
     fs::File,
     io::Write,
-    path::PathBuf,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc,
@@ -29,7 +27,7 @@ pub struct DownloadPage {
 }
 
 impl DownloadPage {
-    pub fn new(sources: Vec<WebSource>) -> Self {
+    pub fn new(sources: impl Iterator<Item = WebSource>) -> Self {
         let rt = Runtime::new().unwrap();
         let downloads = sources.into_iter().map(|s| Download::new(&rt, s)).collect();
         Self { rt, downloads }

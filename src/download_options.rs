@@ -44,7 +44,7 @@ impl DownloadOptions {
             KeyCode::Char('h') if !self.list.is_searching() => Some(Action::PrevPage),
             _ => self.list.handle_key(key).map(|option| match option {
                 DownloadOption::Download => Action::NextPage(Page::Download(DownloadPage::new(
-                    extract_sources(&self.config).collect(),
+                    extract_sources(&self.config),
                 ))),
                 DownloadOption::ListUrls => Action::NextPage(Page::UrlList(UrlList::new(
                     sources_to_urls(extract_sources(&self.config)),
