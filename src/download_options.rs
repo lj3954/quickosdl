@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use quickget_core::data_structures::Config;
+use quickget_core::data_structures::{Config, Source, WebSource};
 use ratatui::{
     crossterm::event::{KeyCode, KeyEvent},
     text::Span,
@@ -10,6 +10,7 @@ use ratatui::{
 use crate::{
     app::{Action, Page},
     searchable_list::{SearchableItem, SearchableList},
+    url_list::UrlList,
 };
 
 const DOWNLOAD_OPTIONS: [DownloadOption; 2] = [DownloadOption::Download, DownloadOption::ListUrls];
@@ -42,7 +43,9 @@ impl DownloadOptions {
             KeyCode::Char('h') if !self.list.is_searching() => Some(Action::PrevPage),
             _ => self.list.handle_key(key).map(|option| match option {
                 DownloadOption::Download => Action::NextPage(Page::Download),
-                DownloadOption::ListUrls => Action::NextPage(Page::UrlList),
+                DownloadOption::ListUrls => Action::NextPage(Page::UrlList(UrlList::new(
+                    sources_to_urls(extract_sources(&self.config)),
+                ))),
             }),
         }
     }
@@ -64,4 +67,20 @@ impl AsRef<str> for DownloadOption {
             DownloadOption::ListUrls => "List URLs",
         }
     }
+}
+
+fn sources_to_urls(sources: impl IntoIterator<Item = WebSource>) -> Vec<String> {
+    sources.into_iter().map(|s| s.url).collect()
+}
+
+fn extract_sources(config: &Config) -> impl IntoIterator<Item = WebSource> + use<'_> {
+    config
+        .iso
+        .iter()
+        .chain(config.img.iter())
+        .flatten()
+        .filter_map(|s| match s {
+            Source::Web(web) => Some(web.clone()),
+            _ => None,
+        })
 }

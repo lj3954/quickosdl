@@ -10,7 +10,7 @@ use ratatui::{
 use crate::{
     arch_selection::ArchSelection, download_options::DownloadOptions,
     edition_selection::EditionSelection, os_selection::OSSelection,
-    release_selection::ReleaseSelection,
+    release_selection::ReleaseSelection, url_list::UrlList,
 };
 
 pub struct App {
@@ -88,7 +88,7 @@ pub enum Page {
     EditionSelection(EditionSelection),
     DownloadOptions(DownloadOptions),
     Download,
-    UrlList,
+    UrlList(UrlList),
     Complete,
     Error,
 }
@@ -101,6 +101,7 @@ impl Page {
             Page::ReleaseSelection(release_selection) => release_selection.draw(frame, area),
             Page::EditionSelection(edition_selection) => edition_selection.draw(frame, area),
             Page::DownloadOptions(download_options) => download_options.draw(frame, area),
+            Page::UrlList(url_list) => url_list.draw(frame, area),
             _ => unimplemented!(),
         }
     }
@@ -111,6 +112,7 @@ impl Page {
             Page::ReleaseSelection(release_selection) => release_selection.handle_key(key),
             Page::EditionSelection(edition_selection) => edition_selection.handle_key(key),
             Page::DownloadOptions(download_options) => download_options.handle_key(key),
+            Page::UrlList(url_list) => url_list.handle_key(key),
             _ => unimplemented!(),
         }
     }
@@ -123,7 +125,7 @@ impl Page {
             Page::EditionSelection(_) => "Edition",
             Page::DownloadOptions(_) => "Download Options",
             Page::Download => "Download",
-            Page::UrlList => "URLs",
+            Page::UrlList(_) => "URLs",
             Page::Complete => "Complete",
             Page::Error => "Error",
         }

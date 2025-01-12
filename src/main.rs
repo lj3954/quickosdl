@@ -17,6 +17,7 @@ mod edition_selection;
 mod os_selection;
 mod release_selection;
 mod searchable_list;
+mod url_list;
 
 fn main() -> io::Result<()> {
     let mut app = App::new();
