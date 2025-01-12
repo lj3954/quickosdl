@@ -40,7 +40,7 @@ impl ArchSelection {
             _ => self
                 .list
                 .handle_key(key)
-                .map(|_| Action::NextPage(Page::OSSelection(OSSelection::new()))),
+                .map(|arch| Action::NextPage(Page::OSSelection(OSSelection::new(arch.clone())))),
         }
     }
 

@@ -3,14 +3,13 @@ use crate::{
     searchable_list::{SearchableItem, SearchableList},
 };
 use quickget_core::{
-    data_structures::{Config, Source, OS},
+    data_structures::{Arch, Config, Source, OS},
     ConfigSearch, ConfigSearchError,
 };
 use ratatui::{
     crossterm::event::{KeyCode, KeyEvent},
     layout::Rect,
-    style::Style,
-    text::{Line, Span, Text},
+    text::{Line, Span},
     widgets::ListItem,
     Frame,
 };
@@ -64,13 +63,14 @@ impl SearchableItem for OS {
 }
 
 pub struct OSSelection {
+    arch: Arch,
     list: Option<SearchableList<OS>>,
 }
 
 impl OSSelection {
-    pub fn new() -> Self {
+    pub fn new(arch: Arch) -> Self {
         let list = None;
-        Self { list }
+        Self { arch, list }
     }
 
     pub fn handle_key(&mut self, key: &KeyEvent) -> Option<Action> {
@@ -96,6 +96,7 @@ impl OSSelection {
                             .cloned()
                             .map(|mut os| {
                                 os.releases.retain(has_only_wanted_sources);
+                                os.releases.retain(|c| correct_arch(c, &self.arch));
                                 os
                             })
                             .filter(|os| !os.releases.is_empty())
@@ -121,6 +122,10 @@ impl OSSelection {
             frame.render_widget(Line::from(text), area);
         }
     }
+}
+
+fn correct_arch(config: &Config, arch: &Arch) -> bool {
+    &config.arch == arch
 }
 
 fn has_only_wanted_sources(config: &Config) -> bool {
