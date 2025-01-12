@@ -16,7 +16,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.ref_name }}
+          ref: ${{ github.ref_name }}
 
       - name: Install package
         run: |
@@ -34,6 +34,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           add-paths: .github/preview.gif
-          commit-message: "chore: Update preview for ${{ env.ref_name }}"
-          branch: preview-${{ env.ref_name }}
-          title: "chore: Update preview for ${{ env.ref_name }}"
+          commit-message: "chore: Update preview for ${{ github.ref_name }}"
+          branch: preview-${{ github.ref_name }}
+          title: "chore: Update preview for ${{ github.ref_name }}"
