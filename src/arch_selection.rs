@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use crate::{
     app::{Action, Page},
+    os_selection::OSSelection,
     searchable_list::{SearchableItem, SearchableList},
 };
 use quickget_core::data_structures::Arch;
@@ -15,7 +16,7 @@ use ratatui::{
 const ARCHITECTURES: [Arch; 3] = [Arch::x86_64, Arch::aarch64, Arch::riscv64];
 
 impl SearchableItem for Arch {
-    fn to_list_item(&self) -> ListItem<'_> {
+    fn to_list_item(&self, _: usize) -> ListItem<'_> {
         ListItem::new(self.to_string())
     }
     fn to_filter(&self) -> Cow<'static, str> {
@@ -39,7 +40,7 @@ impl ArchSelection {
             _ => self
                 .list
                 .handle_key(key)
-                .map(|_| Action::NextPage(Page::OSSelection)),
+                .map(|_| Action::NextPage(Page::OSSelection(OSSelection::new()))),
         }
     }
 

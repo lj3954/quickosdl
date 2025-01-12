@@ -10,10 +10,11 @@ use ratatui::{
 };
 
 const HL_STYLE: Style = Style::new().bg(Color::LightBlue).fg(Color::Yellow);
+const HL_SYMBOL: &str = ">> ";
 
 pub trait SearchableItem {
-    fn to_list_item(&self) -> ListItem<'_>;
-    fn to_filter(&self) -> Cow<'static, str>;
+    fn to_list_item(&self, width: usize) -> ListItem<'_>;
+    fn to_filter(&self) -> Cow<'_, str>;
 }
 
 pub struct SearchableList<T>
@@ -66,15 +67,16 @@ impl<T: SearchableItem> SearchableList<T> {
         frame.render_widget(search_bar, chunks[0]);
 
         let list = {
+            let item_width = chunks[1].width as usize - HL_SYMBOL.len();
             let mut items: Vec<ListItem> = if self.search_query.is_empty() {
                 self.items
                     .iter()
-                    .map(SearchableItem::to_list_item)
+                    .map(|i| i.to_list_item(item_width))
                     .collect()
             } else {
                 self.curr_item_indices
                     .iter()
-                    .map(|&i| self.items[i].to_list_item())
+                    .map(|&i| self.items[i].to_list_item(item_width))
                     .collect()
             };
             if items.is_empty() {
@@ -82,7 +84,7 @@ impl<T: SearchableItem> SearchableList<T> {
             }
             List::new(items)
                 .highlight_style(HL_STYLE)
-                .highlight_symbol(">> ")
+                .highlight_symbol(HL_SYMBOL)
                 .highlight_spacing(HighlightSpacing::Always)
         };
         frame.render_stateful_widget(list, chunks[1], &mut self.selected);

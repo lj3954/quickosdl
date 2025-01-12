@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 quickget_core = { git = "https://github.com/lj3954/quickemu-rs" }
 ratatui = "0.29.0"
+reqwest = { version = "0.12.12", features = ["blocking"] }
+tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread"] }

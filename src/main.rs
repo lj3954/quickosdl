@@ -1,14 +1,18 @@
-use std::io::{self, Stdout};
+use std::{
+    io::{self, Stdout},
+    time::Duration,
+};
 
 use app::App;
 use ratatui::{
-    crossterm::event::{self, Event, KeyEventKind},
+    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     prelude::CrosstermBackend,
     Terminal,
 };
 
 mod app;
 mod arch_selection;
+mod os_selection;
 mod searchable_list;
 
 fn main() -> io::Result<()> {
@@ -21,8 +25,21 @@ fn main() -> io::Result<()> {
 
 impl App {
     fn run(&mut self, terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<()> {
+        std::thread::spawn(move || {
+            os_selection::init_os_list();
+        });
         loop {
             terminal.draw(|f| self.draw(f))?;
+
+            if !event::poll(Duration::from_millis(10))? {
+                // Send a null key to ensure consistent refreshes
+                // Cost appears to be negligible
+                if self.handle_key(&KeyEvent::new(KeyCode::Null, KeyModifiers::NONE)) {
+                    break;
+                }
+                continue;
+            }
+
             if let Event::Key(key) = event::read()? {
                 if key.kind != KeyEventKind::Press && key.kind != KeyEventKind::Release {
                     continue;

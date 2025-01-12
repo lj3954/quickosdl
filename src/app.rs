@@ -7,7 +7,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::arch_selection::ArchSelection;
+use crate::{arch_selection::ArchSelection, os_selection::OSSelection};
 
 pub struct App {
     page_stack: Vec<Page>,
@@ -79,7 +79,7 @@ pub enum Action {
 
 pub enum Page {
     ArchSelection(ArchSelection),
-    OSSelection,
+    OSSelection(OSSelection),
     ReleaseSelection,
     EditionSelection,
     Download,
@@ -92,12 +92,14 @@ impl Page {
     fn draw(&mut self, frame: &mut Frame, area: Rect) {
         match self {
             Page::ArchSelection(arch_selection) => arch_selection.draw(frame, area),
+            Page::OSSelection(os_selection) => os_selection.draw(frame, area),
             _ => unimplemented!(),
         }
     }
     fn handle_key(&mut self, key: &KeyEvent) -> Option<Action> {
         match self {
             Page::ArchSelection(arch_selection) => arch_selection.handle_key(key),
+            Page::OSSelection(os_selection) => os_selection.handle_key(key),
             _ => unimplemented!(),
         }
     }
@@ -105,7 +107,7 @@ impl Page {
     fn page_name(&self) -> &'static str {
         match self {
             Page::ArchSelection(_) => "Arch",
-            Page::OSSelection => "OS",
+            Page::OSSelection(_) => "OS",
             Page::ReleaseSelection => "Release",
             Page::EditionSelection => "Edition",
             Page::Download => "Download",
