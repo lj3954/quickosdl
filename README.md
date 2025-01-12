@@ -14,6 +14,18 @@ Initially, I started writing this tool in Golang using the bubbletea TUI library
 of its implementation of the Elm architecture in Golang (due to its poor type system). Therefore, I switched the project
 to Rust, using the ratatui library I'm much more familiar with.
 
+## Installation
+
+### Arch Linux
+
+[quickosdl](https://aur.archlinux.org/packages/quickosdl) is available as an [AUR](https://aur.archlinux.org) package.
+
+You can install it using an [AUR helper](https://wiki.archlinux.org/title/AUR_helpers) (e.g. `paru`):
+
+```sh
+paru -S quickosdl
+```
+
 ## Usage
 
 Binary releases are available on the [releases page](https://github.com/lj3954/quickosdl/releases).
