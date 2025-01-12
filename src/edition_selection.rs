@@ -7,6 +7,7 @@ use ratatui::{
 
 use crate::{
     app::{Action, Page},
+    download_options::DownloadOptions,
     searchable_list::{SearchableItem, SearchableList},
 };
 
@@ -34,10 +35,9 @@ impl EditionSelection {
         match key.code {
             KeyCode::Char('q') if !self.list.is_searching() => Some(Action::Exit),
             KeyCode::Char('h') if !self.list.is_searching() => Some(Action::PrevPage),
-            _ => self
-                .list
-                .handle_key(key)
-                .map(|_| Action::NextPage(Page::DownloadOptions)),
+            _ => self.list.handle_key(key).map(|config| {
+                Action::NextPage(Page::DownloadOptions(DownloadOptions::new(config.clone())))
+            }),
         }
     }
 

@@ -12,6 +12,7 @@ use ratatui::{
 
 use crate::{
     app::{Action, Page},
+    download_options::DownloadOptions,
     edition_selection::EditionSelection,
     searchable_list::{SearchableItem, SearchableList},
 };
@@ -56,7 +57,9 @@ impl ReleaseSelection {
                     .cloned()
                     .collect();
                 if remaining_configs.len() == 1 {
-                    Action::NextPage(Page::DownloadOptions)
+                    Action::NextPage(Page::DownloadOptions(DownloadOptions::new(
+                        remaining_configs.into_iter().next().unwrap(),
+                    )))
                 } else {
                     Action::NextPage(Page::EditionSelection(EditionSelection::new(
                         remaining_configs,
