@@ -12,7 +12,9 @@ use ratatui::{
 
 mod app;
 mod arch_selection;
+mod edition_selection;
 mod os_selection;
+mod release_selection;
 mod searchable_list;
 
 fn main() -> io::Result<()> {

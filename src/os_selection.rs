@@ -1,7 +1,8 @@
-use crate::{
-    app::Action,
-    searchable_list::{SearchableItem, SearchableList},
+use std::{
+    borrow::Cow,
+    sync::{LazyLock, Mutex},
 };
+
 use quickget_core::{
     data_structures::{Arch, Config, Source, OS},
     ConfigSearch, ConfigSearchError,
@@ -13,11 +14,13 @@ use ratatui::{
     widgets::ListItem,
     Frame,
 };
-use std::{
-    borrow::Cow,
-    sync::{LazyLock, Mutex},
-};
 use tokio::runtime::Runtime;
+
+use crate::{
+    app::{Action, Page},
+    release_selection::ReleaseSelection,
+    searchable_list::{SearchableItem, SearchableList},
+};
 
 pub fn init_os_list() {
     _ = OS_LIST.as_ref();
@@ -78,14 +81,11 @@ impl OSSelection {
             match key.code {
                 KeyCode::Char('q') if !list.is_searching() => Some(Action::Exit),
                 KeyCode::Char('h') if !list.is_searching() => Some(Action::PrevPage),
-                KeyCode::Char('q') if !list.is_searching() => Some(Action::Exit),
-                _ => {
-                    if let Some(os) = list.handle_key(key) {
-                        panic!("{:?}", os);
-                    } else {
-                        None
-                    }
-                }
+                _ => list.handle_key(key).map(|os| {
+                    Action::NextPage(Page::ReleaseSelection(ReleaseSelection::new(
+                        os.releases.to_vec(),
+                    )))
+                }),
             }
         } else {
             if *OS_LIST_POPULATED.lock().unwrap() {

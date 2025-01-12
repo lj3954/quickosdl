@@ -7,7 +7,10 @@ use ratatui::{
     Frame,
 };
 
-use crate::{arch_selection::ArchSelection, os_selection::OSSelection};
+use crate::{
+    arch_selection::ArchSelection, edition_selection::EditionSelection, os_selection::OSSelection,
+    release_selection::ReleaseSelection,
+};
 
 pub struct App {
     page_stack: Vec<Page>,
@@ -80,8 +83,9 @@ pub enum Action {
 pub enum Page {
     ArchSelection(ArchSelection),
     OSSelection(OSSelection),
-    ReleaseSelection,
-    EditionSelection,
+    ReleaseSelection(ReleaseSelection),
+    EditionSelection(EditionSelection),
+    DownloadOptions,
     Download,
     UrlList,
     Complete,
@@ -93,6 +97,8 @@ impl Page {
         match self {
             Page::ArchSelection(arch_selection) => arch_selection.draw(frame, area),
             Page::OSSelection(os_selection) => os_selection.draw(frame, area),
+            Page::ReleaseSelection(release_selection) => release_selection.draw(frame, area),
+            Page::EditionSelection(edition_selection) => edition_selection.draw(frame, area),
             _ => unimplemented!(),
         }
     }
@@ -100,6 +106,8 @@ impl Page {
         match self {
             Page::ArchSelection(arch_selection) => arch_selection.handle_key(key),
             Page::OSSelection(os_selection) => os_selection.handle_key(key),
+            Page::ReleaseSelection(release_selection) => release_selection.handle_key(key),
+            Page::EditionSelection(edition_selection) => edition_selection.handle_key(key),
             _ => unimplemented!(),
         }
     }
@@ -108,8 +116,9 @@ impl Page {
         match self {
             Page::ArchSelection(_) => "Arch",
             Page::OSSelection(_) => "OS",
-            Page::ReleaseSelection => "Release",
-            Page::EditionSelection => "Edition",
+            Page::ReleaseSelection(_) => "Release",
+            Page::EditionSelection(_) => "Edition",
+            Page::DownloadOptions => "Download Options",
             Page::Download => "Download",
             Page::UrlList => "URLs",
             Page::Complete => "Complete",

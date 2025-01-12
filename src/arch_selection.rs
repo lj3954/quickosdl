@@ -1,16 +1,17 @@
 use std::borrow::Cow;
 
-use crate::{
-    app::{Action, Page},
-    os_selection::OSSelection,
-    searchable_list::{SearchableItem, SearchableList},
-};
 use quickget_core::data_structures::Arch;
 use ratatui::{
     crossterm::event::{KeyCode, KeyEvent},
     layout::Rect,
     widgets::ListItem,
     Frame,
+};
+
+use crate::{
+    app::{Action, Page},
+    os_selection::OSSelection,
+    searchable_list::{SearchableItem, SearchableList},
 };
 
 const ARCHITECTURES: [Arch; 3] = [Arch::x86_64, Arch::aarch64, Arch::riscv64];
