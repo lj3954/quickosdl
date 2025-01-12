@@ -146,7 +146,7 @@ impl Download {
                 .file_name
                 .as_deref()
                 .unwrap_or_else(|| response.url().path_segments().unwrap().last().unwrap());
-            let mut file = File::create(filename).map_err(DownloadError::Io)?;
+            let mut file = File::create_new(filename).map_err(DownloadError::Io)?;
 
             while let Some(chunk) = response.chunk().await.map_err(DownloadError::Reqwest)? {
                 file.write_all(&chunk).map_err(DownloadError::Io)?;
