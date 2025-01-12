@@ -10,6 +10,10 @@ which allows this tool to work reliably, keeping up with new OS releases, withou
 The OS list begins downloading when the program first launches, which will result in fewer delays, as the user
 has to make a selection (architecture) beforehand.
 
+Initially, I started writing this tool in Golang using the bubbletea TUI library, but I wasn't particularly fond
+of its implementation of the Elm architecture in Golang (due to its poor type system). Therefore, I switched the project
+to Rust, using the ratatui library I'm much more familiar with.
+
 ## Usage
 
 Binary releases are available on the [releases page](https://github.com/lj3954/quickosdl/releases).
