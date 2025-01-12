@@ -33,6 +33,7 @@ jobs:
       - name: Create PR
         uses: peter-evans/create-pull-request@v7
         with:
+          base: "master"
           add-paths: .github/preview.gif
           commit-message: "chore: Update preview for ${{ github.ref_name }}"
           branch: preview-${{ github.ref_name }}
