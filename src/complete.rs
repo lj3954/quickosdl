@@ -5,7 +5,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::Action;
+use crate::{app::Action, keybinds::KeyBind};
 
 pub struct CompletePage {}
 
@@ -25,5 +25,8 @@ impl CompletePage {
             .areas(area);
         let text = Paragraph::new("Complete! Press any key to exit.").centered();
         frame.render_widget(text, centered);
+    }
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        vec![KeyBind::single_key("Any key", "Exit")]
     }
 }

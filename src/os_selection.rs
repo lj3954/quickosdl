@@ -19,6 +19,7 @@ use tokio::runtime::Runtime;
 use crate::{
     app::{Action, Page},
     error_display::ErrorDisplay,
+    keybinds::KeyBind,
     release_selection::ReleaseSelection,
     searchable_list::{SearchableItem, SearchableList},
 };
@@ -125,6 +126,15 @@ impl OSSelection {
         } else {
             let text = vec![Span::raw("Loading...")];
             frame.render_widget(Line::from(text), area);
+        }
+    }
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        match &self.list {
+            Some(list) => list.keybinds(true),
+            None => vec![
+                KeyBind::single_key("q", "Exit"),
+                KeyBind::single_key("h", "Previous page"),
+            ],
         }
     }
 }

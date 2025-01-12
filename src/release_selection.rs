@@ -14,6 +14,7 @@ use crate::{
     app::{Action, Page},
     download_options::DownloadOptions,
     edition_selection::EditionSelection,
+    keybinds::KeyBind,
     searchable_list::{SearchableItem, SearchableList},
 };
 
@@ -71,5 +72,9 @@ impl ReleaseSelection {
 
     pub fn draw(&mut self, frame: &mut Frame, area: Rect) {
         self.list.draw(frame, area);
+    }
+
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        self.list.keybinds(true)
     }
 }

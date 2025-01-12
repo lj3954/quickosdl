@@ -7,7 +7,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::Action;
+use crate::{app::Action, keybinds::KeyBind};
 
 pub struct ErrorDisplay {
     errors: Vec<String>,
@@ -45,5 +45,9 @@ impl ErrorDisplay {
         )]));
         let text = Paragraph::new(error_lines).centered();
         frame.render_widget(text, centered);
+    }
+
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        vec![KeyBind::single_key("Any key", "Exit")]
     }
 }

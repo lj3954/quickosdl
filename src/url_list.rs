@@ -4,7 +4,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::{app::Action, searchable_list::SearchableList};
+use crate::{app::Action, keybinds::KeyBind, searchable_list::SearchableList};
 
 pub struct UrlList {
     list: SearchableList<String>,
@@ -28,5 +28,8 @@ impl UrlList {
     }
     pub fn draw(&mut self, frame: &mut Frame, area: Rect) {
         self.list.draw(frame, area);
+    }
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        self.list.keybinds(true)
     }
 }

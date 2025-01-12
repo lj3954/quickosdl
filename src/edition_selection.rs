@@ -8,6 +8,7 @@ use ratatui::{
 use crate::{
     app::{Action, Page},
     download_options::DownloadOptions,
+    keybinds::KeyBind,
     searchable_list::{SearchableItem, SearchableList},
 };
 
@@ -43,5 +44,9 @@ impl EditionSelection {
 
     pub fn draw(&mut self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
         self.list.draw(frame, area);
+    }
+
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        self.list.keybinds(true)
     }
 }

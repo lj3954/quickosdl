@@ -10,6 +10,7 @@ use ratatui::{
 
 use crate::{
     app::{Action, Page},
+    keybinds::KeyBind,
     os_selection::OSSelection,
     searchable_list::{SearchableItem, SearchableList},
 };
@@ -47,5 +48,9 @@ impl ArchSelection {
 
     pub fn draw(&mut self, frame: &mut Frame, area: Rect) {
         self.list.draw(frame, area);
+    }
+
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        self.list.keybinds(false)
     }
 }

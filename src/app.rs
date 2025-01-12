@@ -1,16 +1,22 @@
 use ratatui::{
     crossterm::event::KeyEvent,
-    layout::Rect,
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Style, Stylize},
     text::{Line, Span},
-    widgets::Block,
+    widgets::{Block, Borders},
     Frame,
 };
 
 use crate::{
-    arch_selection::ArchSelection, complete::CompletePage, download::DownloadPage,
-    download_options::DownloadOptions, edition_selection::EditionSelection,
-    error_display::ErrorDisplay, os_selection::OSSelection, release_selection::ReleaseSelection,
+    arch_selection::ArchSelection,
+    complete::CompletePage,
+    download::DownloadPage,
+    download_options::DownloadOptions,
+    edition_selection::EditionSelection,
+    error_display::ErrorDisplay,
+    keybinds::{FinishedKeybinds, KeyBind},
+    os_selection::OSSelection,
+    release_selection::ReleaseSelection,
     url_list::UrlList,
 };
 
@@ -60,7 +66,21 @@ impl App {
     pub fn draw(&mut self, frame: &mut Frame) {
         let block = Block::bordered().title(self.title());
         let inner_area = block.inner(frame.area());
-        self.current_page().draw(frame, inner_area);
+
+        let keybinds = self.current_page().keybinds();
+        let keybinds = FinishedKeybinds::new(keybinds, inner_area.width);
+        let length = keybinds.length();
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Min(0), Constraint::Length(length)])
+            .split(inner_area);
+
+        let kb_block = Block::default().borders(Borders::TOP).title(" Keybinds ");
+        frame.render_widget(kb_block, chunks[1]);
+
+        keybinds.draw(frame, chunks[1]);
+
+        self.current_page().draw(frame, chunks[0]);
         frame.render_widget(block, frame.area());
     }
 
@@ -133,6 +153,20 @@ impl Page {
             Page::UrlList(_) => "URLs",
             Page::Complete(_) => "Complete",
             Page::Error(_) => "Error",
+        }
+    }
+
+    fn keybinds(&self) -> Vec<KeyBind> {
+        match self {
+            Page::ArchSelection(arch_selection) => arch_selection.keybinds(),
+            Page::OSSelection(os_selection) => os_selection.keybinds(),
+            Page::ReleaseSelection(release_selection) => release_selection.keybinds(),
+            Page::EditionSelection(edition_selection) => edition_selection.keybinds(),
+            Page::DownloadOptions(download_options) => download_options.keybinds(),
+            Page::Download(download_page) => download_page.keybinds(),
+            Page::UrlList(url_list) => url_list.keybinds(),
+            Page::Complete(complete_page) => complete_page.keybinds(),
+            Page::Error(error_display) => error_display.keybinds(),
         }
     }
 }

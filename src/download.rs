@@ -24,6 +24,7 @@ use crate::{
     app::{Action, Page},
     complete::CompletePage,
     error_display::ErrorDisplay,
+    keybinds::KeyBind,
 };
 
 pub struct DownloadPage {
@@ -114,6 +115,10 @@ impl DownloadPage {
             let gauge = Gauge::default().ratio(ratio).gauge_style(color).label(text);
             frame.render_widget(gauge, chunks[i]);
         });
+    }
+
+    pub fn keybinds(&self) -> Vec<KeyBind> {
+        vec![]
     }
 }
 

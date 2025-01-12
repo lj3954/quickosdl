@@ -9,6 +9,8 @@ use ratatui::{
     Frame,
 };
 
+use crate::keybinds::KeyBind;
+
 const HL_STYLE: Style = Style::new().bg(Color::LightBlue).fg(Color::Yellow);
 const HL_SYMBOL: &str = ">> ";
 
@@ -130,6 +132,29 @@ impl<T: SearchableItem> SearchableList<T> {
             }
         }
         None
+    }
+
+    pub fn keybinds(&self, has_prev: bool) -> Vec<KeyBind> {
+        if self.is_searching() {
+            vec![
+                KeyBind::single_key("Ctrl+C", "Finish search"),
+                KeyBind::new(vec!["Esc", "Enter"], "Exit search"),
+                KeyBind::single_key("Backspace", "Remove last character"),
+            ]
+        } else {
+            let mut binds = vec![
+                KeyBind::single_key("/", "Enter Search"),
+                KeyBind::new(vec!["l", "Right", "Enter"], "Select current item"),
+                KeyBind::new(vec!["j", "Down"], "Select next item"),
+                KeyBind::new(vec!["k", "Up"], "Select previous item"),
+                // This keybind isn't part of the list, but all pages using the widget implement it
+                KeyBind::new(vec!["q"], "Exit"),
+            ];
+            if has_prev {
+                binds.push(KeyBind::new(vec!["h"], "Previous page"));
+            }
+            binds
+        }
     }
 
     fn update_items(&mut self) {
