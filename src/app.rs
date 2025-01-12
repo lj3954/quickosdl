@@ -10,7 +10,8 @@ use ratatui::{
 use crate::{
     arch_selection::ArchSelection, complete::CompletePage, download::DownloadPage,
     download_options::DownloadOptions, edition_selection::EditionSelection,
-    os_selection::OSSelection, release_selection::ReleaseSelection, url_list::UrlList,
+    error_display::ErrorDisplay, os_selection::OSSelection, release_selection::ReleaseSelection,
+    url_list::UrlList,
 };
 
 pub struct App {
@@ -90,7 +91,7 @@ pub enum Page {
     Download(DownloadPage),
     UrlList(UrlList),
     Complete(CompletePage),
-    Error,
+    Error(ErrorDisplay),
 }
 
 impl Page {
@@ -104,7 +105,7 @@ impl Page {
             Page::Download(download_page) => download_page.draw(frame, area),
             Page::UrlList(url_list) => url_list.draw(frame, area),
             Page::Complete(complete_page) => complete_page.draw(frame, area),
-            _ => unimplemented!(),
+            Page::Error(error_display) => error_display.draw(frame, area),
         }
     }
     fn handle_key(&mut self, key: &KeyEvent) -> Option<Action> {
@@ -117,7 +118,7 @@ impl Page {
             Page::Download(download_page) => download_page.handle_key(key),
             Page::UrlList(url_list) => url_list.handle_key(key),
             Page::Complete(complete_page) => complete_page.handle_key(key),
-            _ => unimplemented!(),
+            Page::Error(error_display) => error_display.handle_key(key),
         }
     }
 
@@ -131,7 +132,7 @@ impl Page {
             Page::Download(_) => "Download",
             Page::UrlList(_) => "URLs",
             Page::Complete(_) => "Complete",
-            Page::Error => "Error",
+            Page::Error(_) => "Error",
         }
     }
 }

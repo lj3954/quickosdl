@@ -16,6 +16,7 @@ mod complete;
 mod download;
 mod download_options;
 mod edition_selection;
+mod error_display;
 mod os_selection;
 mod release_selection;
 mod searchable_list;

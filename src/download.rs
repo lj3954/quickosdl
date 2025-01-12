@@ -23,6 +23,7 @@ use tokio::{runtime::Runtime, task::JoinHandle};
 use crate::{
     app::{Action, Page},
     complete::CompletePage,
+    error_display::ErrorDisplay,
 };
 
 pub struct DownloadPage {
@@ -42,13 +43,16 @@ impl DownloadPage {
         let mut errors = vec![];
         for download in self.downloads.iter() {
             match &download.status {
-                DownloadStatus::Failed(e) => errors.push(e),
+                DownloadStatus::Failed(e) => match e {
+                    DownloadError::Reqwest(e) => errors.push(e.to_string()),
+                    DownloadError::Io(e) => errors.push(e.to_string()),
+                },
                 DownloadStatus::InProgress => all_complete = false,
                 DownloadStatus::Complete => {}
             }
         }
         if !errors.is_empty() {
-            Some(Action::NextPage(Page::Error))
+            Some(Action::NextPage(Page::Error(ErrorDisplay::new(errors))))
         } else if all_complete {
             Some(Action::NextPage(Page::Complete(CompletePage::new())))
         } else {

@@ -18,6 +18,7 @@ use tokio::runtime::Runtime;
 
 use crate::{
     app::{Action, Page},
+    error_display::ErrorDisplay,
     release_selection::ReleaseSelection,
     searchable_list::{SearchableItem, SearchableList},
 };
@@ -103,7 +104,11 @@ impl OSSelection {
                             .collect();
                         self.list = Some(SearchableList::new(list));
                     }
-                    Err(_) => return Some(Action::Exit),
+                    Err(e) => {
+                        return Some(Action::NextPage(Page::Error(ErrorDisplay::new(vec![
+                            e.to_string()
+                        ]))))
+                    }
                 }
             }
             match key.code {
