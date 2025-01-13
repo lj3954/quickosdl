@@ -1,6 +1,5 @@
 use std::{
     borrow::Cow,
-    fmt::Display,
     fs::File,
     io::Write,
     sync::{
@@ -9,6 +8,7 @@ use std::{
     },
 };
 
+use md5::Md5;
 use quickget_core::data_structures::WebSource;
 use ratatui::{
     crossterm::event::{KeyCode, KeyEvent},
@@ -18,6 +18,8 @@ use ratatui::{
     widgets::Gauge,
     Frame,
 };
+use sha1::Sha1;
+use sha2::{Digest, Sha256, Sha512};
 use size::Size;
 use tokio::{runtime::Runtime, task::JoinHandle};
 
@@ -53,10 +55,7 @@ impl DownloadPage {
         let mut errors = vec![];
         for download in self.downloads.iter() {
             match &download.status {
-                DownloadStatus::Failed(e) => match e {
-                    DownloadError::Reqwest(e) => errors.push(e.to_string()),
-                    DownloadError::Io(e) => errors.push(e.to_string()),
-                },
+                DownloadStatus::Failed(e) => errors.push(e.to_string()),
                 DownloadStatus::InProgress => all_complete = false,
                 DownloadStatus::Complete => {}
             }
@@ -97,8 +96,10 @@ impl DownloadPage {
                 d.total_size.load(Ordering::Relaxed),
                 d.current_size.load(Ordering::Relaxed),
             );
-            let ratio = if total == 0 || !matches!(d.status, DownloadStatus::InProgress) {
+            let ratio = if !matches!(d.status, DownloadStatus::InProgress) {
                 1.0
+            } else if total == 0 {
+                0.0
             } else {
                 current as f64 / total as f64
             };
@@ -142,18 +143,14 @@ impl DownloadPage {
 }
 
 #[allow(dead_code)]
+#[derive(thiserror::Error, Debug)]
 enum DownloadError {
-    Reqwest(reqwest::Error),
-    Io(std::io::Error),
-}
-
-impl Display for DownloadError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DownloadError::Reqwest(e) => write!(f, "{}", e),
-            DownloadError::Io(e) => write!(f, "{}", e),
-        }
-    }
+    #[error("{0}")]
+    Reqwest(#[from] reqwest::Error),
+    #[error("{0}")]
+    Io(#[from] std::io::Error),
+    #[error("Checksum {0} does not match expected value {1}")]
+    NonMatchingChecksum(String, String),
 }
 
 enum DownloadStatus {
@@ -177,9 +174,9 @@ impl Download {
         let as_total_size = total_size.clone();
         let as_current_size = current_size.clone();
         let handle = rt.spawn(async move {
-            let mut response = reqwest::get(&source.url)
-                .await
-                .map_err(DownloadError::Reqwest)?;
+            let mut verification = source.checksum.and_then(ChecksumVerification::new);
+
+            let mut response = reqwest::get(&source.url).await?;
             let size = response.content_length().unwrap_or(0);
             as_total_size.store(size, Ordering::Relaxed);
 
@@ -187,11 +184,18 @@ impl Download {
                 .file_name
                 .as_deref()
                 .unwrap_or_else(|| response.url().path_segments().unwrap().last().unwrap());
-            let mut file = File::create_new(filename).map_err(DownloadError::Io)?;
+            let mut file = File::create_new(filename)?;
 
-            while let Some(chunk) = response.chunk().await.map_err(DownloadError::Reqwest)? {
-                file.write_all(&chunk).map_err(DownloadError::Io)?;
+            while let Some(chunk) = response.chunk().await? {
+                file.write_all(&chunk)?;
+                if let Some(verification) = verification.as_mut() {
+                    verification.write_chunk(&chunk);
+                }
                 as_current_size.fetch_add(chunk.len() as u64, Ordering::Relaxed);
+            }
+
+            if let Some(verification) = verification {
+                verification.validate()?;
             }
             Ok(())
         });
@@ -207,5 +211,58 @@ impl Download {
         if let Some(handle) = self.handle.as_ref() {
             handle.abort();
         }
+    }
+}
+
+struct ChecksumVerification {
+    expected_checksum: String,
+    algorithm: ChecksumAlgorithm,
+}
+
+enum ChecksumAlgorithm {
+    Md5(Md5),
+    Sha1(Sha1),
+    Sha256(Sha256),
+    Sha512(Sha512),
+}
+
+impl ChecksumVerification {
+    fn new(expected_checksum: String) -> Option<Self> {
+        let algorithm = match expected_checksum.len() {
+            32 => ChecksumAlgorithm::Md5(Md5::new()),
+            40 => ChecksumAlgorithm::Sha1(Sha1::new()),
+            64 => ChecksumAlgorithm::Sha256(Sha256::new()),
+            128 => ChecksumAlgorithm::Sha512(Sha512::new()),
+            _ => return None,
+        };
+        Some(Self {
+            expected_checksum,
+            algorithm,
+        })
+    }
+
+    fn write_chunk(&mut self, data: &[u8]) {
+        match &mut self.algorithm {
+            ChecksumAlgorithm::Md5(a) => a.update(data),
+            ChecksumAlgorithm::Sha1(a) => a.update(data),
+            ChecksumAlgorithm::Sha256(a) => a.update(data),
+            ChecksumAlgorithm::Sha512(a) => a.update(data),
+        }
+    }
+
+    fn validate(self) -> Result<(), DownloadError> {
+        let actual_checksum = match self.algorithm {
+            ChecksumAlgorithm::Md5(a) => format!("{:x}", a.finalize()),
+            ChecksumAlgorithm::Sha1(a) => format!("{:x}", a.finalize()),
+            ChecksumAlgorithm::Sha256(a) => format!("{:x}", a.finalize()),
+            ChecksumAlgorithm::Sha512(a) => format!("{:x}", a.finalize()),
+        };
+        if actual_checksum != self.expected_checksum {
+            return Err(DownloadError::NonMatchingChecksum(
+                actual_checksum,
+                self.expected_checksum,
+            ));
+        }
+        Ok(())
     }
 }
