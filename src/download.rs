@@ -1,5 +1,6 @@
 use std::{
     borrow::Cow,
+    fmt::Display,
     fs::File,
     io::Write,
     sync::{
@@ -10,7 +11,7 @@ use std::{
 
 use quickget_core::data_structures::WebSource;
 use ratatui::{
-    crossterm::event::KeyEvent,
+    crossterm::event::{KeyCode, KeyEvent},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::Span,
@@ -29,6 +30,7 @@ use crate::{
 
 pub struct DownloadPage {
     rt: Runtime,
+    has_failed_download: bool,
     downloads: Vec<Download>,
 }
 
@@ -36,10 +38,17 @@ impl DownloadPage {
     pub fn new(sources: impl Iterator<Item = WebSource>) -> Self {
         let rt = Runtime::new().unwrap();
         let downloads = sources.into_iter().map(|s| Download::new(&rt, s)).collect();
-        Self { rt, downloads }
+        Self {
+            rt,
+            has_failed_download: false,
+            downloads,
+        }
     }
 
-    pub fn handle_key(&mut self, _: &KeyEvent) -> Option<Action> {
+    pub fn handle_key(&mut self, key: &KeyEvent) -> Option<Action> {
+        if let KeyCode::Null = key.code {
+            return None;
+        }
         let mut all_complete = true;
         let mut errors = vec![];
         for download in self.downloads.iter() {
@@ -53,6 +62,7 @@ impl DownloadPage {
             }
         }
         if !errors.is_empty() {
+            self.downloads.iter().for_each(Download::cancel);
             Some(Action::NextPage(Page::Error(ErrorDisplay::new(errors))))
         } else if all_complete {
             Some(Action::NextPage(Page::Complete(CompletePage::new())))
@@ -73,7 +83,10 @@ impl DownloadPage {
                     self.rt.block_on(async {
                         let result = handle.await;
                         d.status = match result {
-                            Ok(Err(e)) => DownloadStatus::Failed(e),
+                            Ok(Err(e)) => {
+                                self.has_failed_download = true;
+                                DownloadStatus::Failed(e)
+                            }
                             Ok(_) => DownloadStatus::Complete,
                             Err(e) => panic!("Error spawning thread: {:?}", e),
                         };
@@ -85,15 +98,17 @@ impl DownloadPage {
                 d.current_size.load(Ordering::Relaxed),
             );
             let ratio = if total == 0 || !matches!(d.status, DownloadStatus::InProgress) {
-                0.0
+                1.0
             } else {
                 current as f64 / total as f64
             };
 
-            let (color, text, text_color) = match d.status {
-                DownloadStatus::Failed(_) => {
-                    (Color::Red, Cow::Borrowed("Download Failed"), Color::Black)
-                }
+            let (color, text, text_color) = match &d.status {
+                DownloadStatus::Failed(e) => (
+                    Color::Red,
+                    Cow::Owned(format!("Download Failed: {e}")),
+                    Color::Black,
+                ),
                 DownloadStatus::InProgress => (
                     Color::Blue,
                     Cow::Owned(format!(
@@ -118,7 +133,11 @@ impl DownloadPage {
     }
 
     pub fn keybinds(&self) -> Vec<KeyBind> {
-        vec![]
+        if self.has_failed_download {
+            vec![KeyBind::single_key("Any key", "Exit downloads")]
+        } else {
+            vec![]
+        }
     }
 }
 
@@ -126,6 +145,15 @@ impl DownloadPage {
 enum DownloadError {
     Reqwest(reqwest::Error),
     Io(std::io::Error),
+}
+
+impl Display for DownloadError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DownloadError::Reqwest(e) => write!(f, "{}", e),
+            DownloadError::Io(e) => write!(f, "{}", e),
+        }
+    }
 }
 
 enum DownloadStatus {
@@ -173,6 +201,11 @@ impl Download {
             handle: Some(handle),
             current_size,
             total_size,
+        }
+    }
+    fn cancel(&self) {
+        if let Some(handle) = self.handle.as_ref() {
+            handle.abort();
         }
     }
 }
