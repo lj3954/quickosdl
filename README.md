@@ -2,23 +2,7 @@
 
 ![Preview](/.github/preview.gif)
 
-This is a simple TUI tool to allow the user to quickly find URLs to (and download) images of various operating systems.
-
-This project makes use of the JSON data from the [quickget_cigo](https://github.com/lj3954/quickget_cigo) project,
-which allows this tool to work reliably, keeping up with new OS releases, without requiring constant updates.
-
-The OS list begins downloading when the program first launches, which will result in fewer delays, as the user
-has to make a selection (architecture) before the list is displayed. On fast connections, the list will be
-available effectively immediately.
-
-Images are validated against expected checksums after downloading,
-and an error will be thrown if the downloaded data's checksum doesn't match the expected value.
-The applicable hasher is updated with data during the download;
-there should be no noticeable delay as the file doesn't need to be read back into memory.
-
-Initially, I started writing this tool in Golang using the bubbletea TUI library, but I wasn't particularly fond
-of its implementation of the Elm architecture in Golang (due to its poor type system). Therefore, I switched the project
-to Rust, using the ratatui library I'm much more familiar with.
+A terminal-based tool for finding and downloading operating system images. It uses data from the [quickget_cigo](https://github.com/lj3954/quickget_cigo) project to stay up-to-date with new OS releases. Downloads are validated against checksums and the interface is built with Rust using the ratatui library.
 
 ## Installation
 
