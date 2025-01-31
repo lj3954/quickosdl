@@ -1051,7 +1051,7 @@ dependencies = [
 [[package]]
 name = "quickemu_core"
 version = "1.0.0"
-source = "git+https://github.com/lj3954/quickemu-rs#88966a4a7af7305a748b57cec0a86d04185e96f6"
+source = "git+https://github.com/lj3954/quickemu-rs#f78607e8b58e72bdd580ee545c4254230d389978"
 dependencies = [
  "derive_more",
  "itertools 0.13.0",
@@ -1063,7 +1063,7 @@ dependencies = [
 [[package]]
 name = "quickget_core"
 version = "1.0.0"
-source = "git+https://github.com/lj3954/quickemu-rs#88966a4a7af7305a748b57cec0a86d04185e96f6"
+source = "git+https://github.com/lj3954/quickemu-rs#f78607e8b58e72bdd580ee545c4254230d389978"
 dependencies = [
  "bzip2",
  "dirs",
