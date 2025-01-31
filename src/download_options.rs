@@ -86,7 +86,6 @@ fn extract_sources(config: &Config) -> impl Iterator<Item = WebSource> + use<'_>
         .iso
         .iter()
         .chain(config.img.iter())
-        .flatten()
         .filter_map(|s| match s {
             Source::Web(web) => Some(web.clone()),
             _ => None,

@@ -4,7 +4,7 @@ use std::{
 };
 
 use quickget_core::{
-    data_structures::{Arch, Config, Source, OS},
+    data_structures::{Arch, Config, Disk, Source, OS},
     ConfigSearch, ConfigSearchError,
 };
 use ratatui::{
@@ -144,9 +144,10 @@ fn correct_arch(config: &Config, arch: &Arch) -> bool {
 }
 
 fn has_only_wanted_sources(config: &Config) -> bool {
-    config
-        .iso
-        .iter()
-        .chain(config.img.iter())
-        .all(|sources| sources.iter().all(|s| matches!(s, Source::Web(_))))
+    (config.disk_images.is_none() || config.disk_images == Some(vec![Disk::default()]))
+        && config
+            .iso
+            .iter()
+            .chain(config.img.iter())
+            .all(|s| matches!(s, Source::Web(_)))
 }

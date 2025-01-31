@@ -15,8 +15,6 @@ use crate::{
     searchable_list::{SearchableItem, SearchableList},
 };
 
-const ARCHITECTURES: [Arch; 3] = [Arch::x86_64, Arch::aarch64, Arch::riscv64];
-
 impl SearchableItem for Arch {
     fn to_list_item(&self, _: usize) -> ListItem<'_> {
         ListItem::new(self.to_string())
@@ -32,8 +30,9 @@ pub struct ArchSelection {
 
 impl ArchSelection {
     pub fn new() -> Self {
+        let architectures: Vec<Arch> = Arch::iter().collect();
         Self {
-            list: SearchableList::new(ARCHITECTURES),
+            list: SearchableList::new(architectures),
         }
     }
     pub fn handle_key(&mut self, key: &KeyEvent) -> Option<Action> {
@@ -42,7 +41,7 @@ impl ArchSelection {
             _ => self
                 .list
                 .handle_key(key)
-                .map(|arch| Action::NextPage(Page::OSSelection(OSSelection::new(arch.clone())))),
+                .map(|arch| Action::NextPage(Page::OSSelection(OSSelection::new(*arch)))),
         }
     }
 
