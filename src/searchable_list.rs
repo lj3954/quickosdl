@@ -166,7 +166,9 @@ impl<T: SearchableItem> SearchableList<T> {
                 .items
                 .iter()
                 .enumerate()
-                .filter_map(|(index, item)| (item.to_filter().contains(&query)).then_some(index))
+                .filter_map(|(index, item)| {
+                    (item.to_filter().to_lowercase().contains(&query)).then_some(index)
+                })
                 .collect();
         }
     }
