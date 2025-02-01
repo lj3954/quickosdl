@@ -32,18 +32,16 @@ You can install it using an [AUR helper](https://wiki.archlinux.org/title/AUR_he
 paru -S quickosdl
 ```
 
-### Linux and macOS systems
+### Binaries
 
-Binary releases can be found on the [releases page](https://github.com/lj3954/quickosdl/releases).
-To install, simply download the binary for your system and place it in a directory in your PATH.
+Binaries are now available for macOS, Linux, and Windows. They can be found on the [releases page](https://github.com/lj3954/quickosdl/releases).
+To install, simply download the archive containing the binary for your system, extract it, and place it in a directory in your PATH.
 
-Only x86_64 Linux with glibc is currently supported. Linux systems with other libc implementations
-or architectures will need to build from source.
+All x86_64 and AArch64 Linux systems are supported, since the linux binaries are statically linked.
+macOS binaries are universal, and will work on both Intel and Apple Silicon Macs.
+Currently, only x86_64 Windows has binary releases.
 
-### Windows
-
-Windows support is coming soon. Currently, due to a dependency which is currently being rewritten,
-a Windows build is not possible.
+On other platforms, use the instructions below to build from source.
 
 ### Building from source
 
